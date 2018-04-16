@@ -7,7 +7,9 @@ $ts3_VirtualServer = TeamSpeak3::factory("serverquery://serveradmin:3243djs2!#12
 $ccode = "DE";
 $gmsg = "Your Text..."; // Defined a text the example is Germany \n for a new line
 $msg = "Your Text..."; // International text \n for a new line
-$sleep = 300; // The delay is 5 minutes in secounds
+$cmsg = "is a Weblist-User"; // Write to the console as an example "Username is a Weblist-User"
+$ip = "51.255.133.2"; // Enter the IP address, which will be written to if a user owns it.
+$sleep = 300; // The delay is 5 minutes in seconds
 
 $newline = "\r\n";
 
@@ -15,8 +17,8 @@ while (1) {
 	try{
 		foreach ($ts3_VirtualServer->clientList() as $client) {
 			if($client->client_type == "0"){
-				if($client->connection_client_ip == "51.255.133.2"){
-					echo $client->client_nickname . " is a Weblist-User" . $newline;
+				if($client->connection_client_ip == $ip){
+					echo $client->client_nickname . " " . $cmsg . $newline;
 					try{
 						if($client->client_country == $ccode){
 							$client->message($gmsg);
