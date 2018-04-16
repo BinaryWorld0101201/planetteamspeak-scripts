@@ -1,2 +1,2 @@
 # planetteamspeak-scripts
-A PTS script base
+Here I occasionally publish some TeamSpeak 3 Query Scripts with the planetteamspeak.com Framework.
