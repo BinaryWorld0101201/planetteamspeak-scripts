@@ -1,26 +1,26 @@
 <?php
+/* Include the planetteamspeak php framework */
 include('ts3phpframework-1.1.32/libraries/TeamSpeak3/TeamSpeak3.php');
 
 /* TS3 Query login */
 $ts3login['username'] = "serveradmin";
 $ts3login['password'] = "password";
 $ts3login['address'] = "127.0.0.1";
-$ts3login['queryport'] = '1976';
+$ts3login['queryport'] = '10011';
 $ts3login['voiceport'] = '9987';
-$ts3login['nickname'] = "User-Tracker";
+$ts3login['nickname'] = "Weblist-Tracker";
 
 /* Header for command line */
 $header[1] = "╔══════════════════════════════════════════════════";
 $header[2] = "║ ╔════════════════════════════════════════════════════╗";
 $header[3] = "║ ║                    Declarations                    ║";
 $header[4] = "║ ║    Real -> Real connection User's without Proxy    ║";
-$header[5] = "║ ║          German -> German Weblist User's           ║";
-$header[6] = "║ ║      Intern. -> International Weblist-User's       ║";
-$header[7] = "║ ╚════════════════════════════════════════════════════╝";
-$header[8] = "╚══════════════════════════════════════════════════";
+$header[5] = "║ ║        Weblist -> Weblist User's with Proxy        ║";
+$header[6] = "║ ╚════════════════════════════════════════════════════╝";
+$header[7] = "╚══════════════════════════════════════════════════";
 
 /* IP list for checking in Array */
-$ipListToCheck = array( "185.250.251.133", "159.100.21.154", "185.250.251.141" );
+$ipListToCheck = array( "54.36.133.96" , "54.36.135.226", "51.255.133.2" );
 
 /* Color set */
 $color['green'] = "\033[32m";
@@ -58,29 +58,28 @@ function runChecker() {
 		echo $header[4] . $newline;
 		echo $header[5] . $newline;
 		echo $header[6] . $newline;
-		echo $header[7] . $newline;
 		foreach ($ts3_VirtualServer->clientList() as $client) {
 			if($client->client_type == "0"){
 				if(in_array($client['connection_client_ip'], $ipListToCheck)) {
 					try {
-						if($client['client_country'] == "DE"){
-							$e++;
-							echo $set['first'] . $color['lightblue'] . "  German -> " . $client['client_nickname'] . " " . $e . $set['end'] . $newline;
-						}else{
-							$ii++;
-							echo $set['first'] . $color['lightcyan'] . "  Intern. -> " . $client['client_nickname'] . " " . $ii . $set['end'] . $newline;
-						}
+						$e++;
+						echo $set['first'] . $color['lightblue'] . "  Weblist   -> " . $client['client_nickname'] . $set['end'] . $newline;
 					} catch(Exception $e) {
 						print_r($color['red'] . "[ERROR] " . $e->getMessage() . $set['end'] . $newline);
 						continue;
 					}
 				} else {
-					echo "║ > " . $color['grey'] . " Real -> " . $client['client_nickname'] . $set['end'] . $newline;
+					try {
+						echo "║ > " . $color['grey'] . " Real      -> " . $client['client_nickname'] . $set['end'] . $newline;
+					} catch(Exception $e) {
+						print_r($color['red'] . "[ERROR] " . $e->getMessage() . $set['end'] . $newline);
+						continue;
+					}
 				}
 				
 			}
 		}
-		echo $header[8] . $newline;
+		echo $header[7] . $newline;
 	} catch(Exception $e) {
 		print_r($color['red'] . "[ERROR] " . $e->getMessage() . $set['end'] . $newline);
 	}
@@ -97,10 +96,8 @@ function CheckResults() {
 	$countoftotalweb = $e + $ii;
 	$useronline = $ts3_VirtualServer->getProperty("virtualserver_clientsonline") - $ts3_VirtualServer->getProperty("virtualserver_queryclientsonline");
 	$useronlinemweb = $useronline - $countoftotalweb;
-	echo ">" . $color['cyan'] . " There are " . $e . " Weblist User's Online from Germany!" . $set['end'] . $newline;
-	echo ">" . $color['cyan'] . " There are " . $ii . " Weblist User's Online from the no country Location!" . $set['end'] . $newline;
-	echo ">" . $color['cyan'] . " The total Weblist User count is " . $countoftotalweb . "!" . $set['end'] . $newline;
-	echo ">" . $color['cyan'] . " The total not Weblist User count is " . $useronlinemweb . "!" . $set['end'] . $newline;
+	echo ">" . $color['cyan'] . " The Weblist Online User count is " . $e . $set['end'] . $newline;
+	echo ">" . $color['cyan'] . " The Real Online User count is " . $useronlinemweb . $set['end'] . $newline;
 	echo ">" . $color['cyan'] . " " . $useronline . " Total User Online!" . $set['end'] . $newline;
 	CloseScript();
 }
