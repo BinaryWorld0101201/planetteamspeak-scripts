@@ -28,6 +28,7 @@ function checkVerify($clientInfo, $host) {
                 $client->addServerGroup($settings['verified_cheat_groupID']);
                 $client->message($settings['pmsg_veri_cheat']);
             }else{
+                $client->addServerGroup($settings['un_verified_groupID']);
                 $client->message(str_replace('%username%', $clientInfo["client_nickname"], $settings['pmsg_unveri']));
             }
         }else{
