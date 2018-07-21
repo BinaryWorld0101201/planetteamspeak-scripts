@@ -10,11 +10,14 @@ require_once("config.php");
 require_once("functions.php");
 
 try {
+    print_r("Starting bot...\n");
     $ts3_VirtualServer = TeamSpeak3::factory("serverquery://" . $query['username'] . ":" . $query['password'] . "@" . $query['ipAddress'] . ":" . $query['port'] . "/?server_port=" . $query['voicePort'] . "&nickname=" . urlencode($query['nickname']) . "&blocking=0");
     TeamSpeak3_Helper_Signal::getInstance()->subscribe("serverqueryWaitTimeout", "onTimeout");
     TeamSpeak3_Helper_Signal::getInstance()->subscribe("notifyCliententerview", "onJoin");
+    TeamSpeak3_Helper_Signal::getInstance()->subscribe("notifyTextmessage", "onTextmessage");
     $ts3_VirtualServer->serverGetSelected()->notifyRegister("server");
-    //($ts3_VirtualServer->virtualserver_version != "3.3.0 [Build: 1530178919]" ? stopBot() : '');
+    $ts3_VirtualServer->notifyRegister("textprivate");
+    print_r("Bot started successfully!\n");
     while (1) $ts3_VirtualServer->getAdapter()->wait();
 }
 catch(TeamSpeak3_Transport_Exception $e){
@@ -31,7 +34,7 @@ catch(Exception $e)
 }
 
 function stopBot(){
-    echo "Stopping Bot... Reason you need minimum the Server-Version 3.3.0\nYou can download the latest beta here: http://dl.4players.de/ts/releases/pre_releases/server/?C=M;O=D\n";
+    echo "Stopping Bot...\n";
     sleep(1);
     exit();
 }
@@ -41,8 +44,6 @@ function onTimeout($seconds, TeamSpeak3_Adapter_ServerQuery $adapter) {
     $time = time();
     $newtime = $time-300;
     $update = $last < $newtime;
-    //$update_str = ($update) ? 'true' : 'false';
-    //print_r("Timeout! seconds=$seconds last=$last time=$time newtime=$newtime update=$update_str\n");
     if($update)
     {
         $adapter->request("clientupdate");
@@ -52,6 +53,10 @@ function onTimeout($seconds, TeamSpeak3_Adapter_ServerQuery $adapter) {
 function onJoin(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Host $host)
 {
     checkVerify(getEvent($event, $host), $host);
-    //$client = $host->serverGetSelected()->clientGetById($clientInfo["clid"]);
 
+}
+
+function onTextmessage(TeamSpeak3_Adapter_ServerQuery_Event $event, TeamSpeak3_Node_Host $host)
+{
+    privateMessageEvent($event, $host);
 }
